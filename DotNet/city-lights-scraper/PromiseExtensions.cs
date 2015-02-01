@@ -53,5 +53,12 @@ namespace DancingDuck
 
         }
 
+        public static System.Runtime.CompilerServices.TaskAwaiter<T> GetAwaiter<T>(this IPromise<T> promise)
+        {
+            TaskCompletionSource<T> completionSource = new TaskCompletionSource<T>();
+            promise.Then(new PromiseAction<T>((t) => completionSource.SetResult(t)), new PromiseAction<T>((t) => completionSource.SetException(new Exception())));
+            return completionSource.Task.GetAwaiter();
+        }
+
     }
 }

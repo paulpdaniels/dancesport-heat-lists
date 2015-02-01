@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Reactive.Linq;
 using System.IO;
+using DancingDuck.Scraper;
+using DancingDuck.Format;
 
 namespace DancingDuck
 {
@@ -15,21 +17,22 @@ namespace DancingDuck
             var nameScraper = new CityLightsNameScraper();
             var eventScraper = new CityLightsEventScraper();
 
-            var outputFile = new StreamWriter(File.OpenWrite(args[0]));
+            var heatWriter = new JsonWriter(File.OpenWrite(args[0]));
 
             nameScraper.Scrape(new Uri("http://www.citylightsball.com/pages/heat_lists/#"));
 
-            nameScraper.Dancers
-                .SelectMany((dancer, idx) => eventScraper.GetEvents(dancer), (dancer, idx1, events, idx2) =>
-                {
-                    return new KeyValuePair<string, Dancer>(events, dancer);
-                })
+            var events = nameScraper.Dancers
+                .Take(20)
+                .SelectMany((dancer, idx) => eventScraper.GetEvents(dancer), 
+                (dancer, idx1, events2, idx2) => new KeyValuePair<string, Dancer>(events2, dancer))
                 .Where(keyValue => !String.IsNullOrEmpty(keyValue.Key))
-                .Do((n, idx) => { if (idx % 20 == 0) Console.WriteLine("{0} events process", idx); })
+                .Do((n, idx) => { if (idx % 20 == 0) Console.WriteLine("{0} pairs processed", idx); })
                 .GroupBy(keyValue => keyValue.Key, keyValue => keyValue.Value)
                 .SelectMany(group => group.ToList(), (group, dancers) => new Event { Name = group.Key, Dancers = dancers })
-                .Do((n) => { }, () => { Console.WriteLine("Completed!"); })
-                .Subscribe(outputFile.WriteLine, () => outputFile.Dispose());
+                .Do(_ => { }, () => { Console.WriteLine("Completed!"); })
+                .ToEnumerable();
+
+            heatWriter.Write(events);
 
             Console.ReadLine();
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,10 +7,13 @@ using System.Threading.Tasks;
 
 namespace DancingDuck
 {
+    [JsonObject]
     public class Event
     {
+        [JsonProperty("dancers")]
         public IList<Dancer> Dancers { get; set; }
 
+        [JsonProperty("name")]
         public string Name { get; set; }
 
         public override string ToString()

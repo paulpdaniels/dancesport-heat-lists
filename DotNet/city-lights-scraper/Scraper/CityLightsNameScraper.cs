@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Reactive.Linq;
 
-namespace DancingDuck
+namespace DancingDuck.Scraper
 {
     public class CityLightsNameScraper : NameScraper
     {
