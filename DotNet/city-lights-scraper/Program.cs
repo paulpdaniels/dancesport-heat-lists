@@ -17,8 +17,6 @@ namespace DancingDuck
             var nameScraper = new CityLightsNameScraper();
             var eventScraper = new CityLightsEventScraper();
 
-            var heatWriter = new JsonWriter(File.OpenWrite(args[0]));
-
             nameScraper.Scrape(new Uri("http://www.citylightsball.com/pages/heat_lists/#"));
 
             var events = nameScraper.Dancers
@@ -32,7 +30,8 @@ namespace DancingDuck
                 .Do(_ => { }, () => { Console.WriteLine("Completed!"); })
                 .ToEnumerable();
 
-            heatWriter.Write(events);
+            using (var heatWriter = new JsonWriter(File.Open(args[0], FileMode.Create)))
+                heatWriter.Write(events);
 
             Console.ReadLine();
 
