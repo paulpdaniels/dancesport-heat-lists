@@ -33,17 +33,6 @@
             });
 
         $scope.lookup = "";
-        $scope.getMatchingEvents = function(val){
-            return $q(function(resolve, reject) {
-
-                var results = $scope.events.filter(function(event) {
-                    return event.name.indexOf(val) != -1;
-                });
-
-                resolve(results);
-            });
-
-        };
 
         $scope.select = function(item, model, label) {
 

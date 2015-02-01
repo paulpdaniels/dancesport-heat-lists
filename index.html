@@ -35,7 +35,7 @@
                 <span>Search:</span>
                 <input type="text" ng-model="lookup" typeahead-wait-ms="250" typeahead-min-length="3"
                        typeahead-on-select="select($item, $model, $label)"
-                       typeahead="event as event.name for event in getMatchingEvents($viewValue)">
+                       typeahead="event as event.name for event in events | filter:$viewValue">
             </label>
         </div>
         <div id="dancer-list" class="col-xs-12">
