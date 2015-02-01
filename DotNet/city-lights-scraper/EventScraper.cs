@@ -14,15 +14,13 @@ namespace DancingDuck
 
         public IObservable<string> GetEvents(Dancer dancer)
         {
-            var domObservable = 
+            return  
                 CQ.CreateFromUrlAsync(dancer.Uri, new ServerConfig { Timeout = TimeSpan.FromSeconds(5) }).ToObservable()
-                .Select(response => response.Dom);
-
-            return DoGetEvents(domObservable);
-                
+                .Select(response => response.Dom)
+                .SelectMany(this.DoGetEvents);
         }
 
-        protected abstract IObservable<string> DoGetEvents(IObservable<CQ> domObservable);
+        protected abstract IEnumerable<string> DoGetEvents(CQ dom);
 
     }
 }
