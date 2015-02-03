@@ -1,0 +1,34 @@
+<div>
+    <form class="form-horizontal">
+        <div class="form-group">
+            <div id="competition-selector" class="col-xs-12">
+                <label>
+                    <span>Select Competition:</span>
+                    <select class="form-control" ng-model="selectedCompetition"
+                            ng-options="comp as comp.name for comp in competitions"></select>
+                </label>
+            </div>
+            <div id="event-selector" class="col-xs-12">
+                <label>
+                    <span>Select Event:</span>
+                    <select class="form-control" ng-model="selectedEvent"
+                            ng-options="event as event.name for event in events"></select>
+                </label>
+            </div>
+            <div id="search-bar" class="col-xs-12">
+                <label>
+                    <span>Search:</span>
+                    <input class="form-control" type="text" ng-model="lookup" typeahead-wait-ms="250"
+                           typeahead-min-length="3"
+                           typeahead-on-select="select($item, $model, $label)"
+                           typeahead="event as event.name for event in events | filter:$viewValue">
+                </label>
+            </div>
+        </div>
+    </form>
+    <div id="dancer-list" class="col-xs-12 well well-lg">
+        <ol>
+            <li ng-repeat="dancer in selectedEvent.dancers">{{dancer.name}}</li>
+        </ol>
+    </div>
+</div>
