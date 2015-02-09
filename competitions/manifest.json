@@ -3,6 +3,10 @@
     {
       "key" : "city_lights_ball-2015",
       "name" : "City Lights Ball 2015"
-    }
+    },
+	{
+	  "key" : "california_open-2015",
+	  "name" : "California Open 2015"
+	}
   ]
 }
