@@ -25,10 +25,29 @@
                 </label>
             </div>
         </div>
+
+        <div id="dancer-list" class="col-xs-12 well well-lg">
+            <ol>
+                <li ng-repeat="dancer in selectedEvent.dancers">{{dancer.name}}</li>
+            </ol>
+        </div>
+
+        <div id="competitor-bar" class="col-xs-12">
+            <label>
+                <span>Search:</span>
+                <input class="form-control" type="text" ng-model="competitorLookup" typeahead-wait-ms="250"
+                       typeahead-min-length="3"
+                       typeahead-on-select="selectCompetitor($item, $model, $label)"
+                       typeahead="competitor as competitor.name for competitor in competitorList | filter:$viewValue">
+            </label>
+        </div>
+        <div id="competitor-well" class="col-xs-12">
+            <div id="event-list" class="col-xs-12 well well-lg">
+                <ol>
+                    <li ng-repeat="event in selectedCompetitor">{{getEventName(event)}}</li>
+                </ol>
+            </div>
+        </div>
     </form>
-    <div id="dancer-list" class="col-xs-12 well well-lg">
-        <ol>
-            <li ng-repeat="dancer in selectedEvent.dancers">{{dancer.name}}</li>
-        </ol>
-    </div>
+
 </div>
