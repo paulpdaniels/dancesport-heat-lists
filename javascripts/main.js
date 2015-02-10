@@ -37,6 +37,32 @@
         $scope.events = [];
         $scope.selectedEvent = null;
 
+        $scope.competitors = {};
+        $scope.competitorList = [];
+        $scope.selectedCompetitor = null;
+
+        function reset() {
+            $scope.competitors = {}; $scope.selectedCompetitor = null;
+            $scope.competitorList = [];
+        }
+
+
+        function computeEvents() {
+
+            reset();
+
+            for (var i = 0, len = $scope.events.length; i < len; ++i) {
+                var event = $scope.events[i];
+                if (!event) continue;
+                for (var j = 0, jlen = event.dancers.length; j < jlen; j++) {
+                    if (!event.dancers[j]) continue;
+                    var name = event.dancers[j].name;
+                    !$scope.competitors[name] && ($scope.competitors[name] = []) && $scope.competitorList.push(event.dancers[j]);
+                    $scope.competitors[name].push(i);
+                }
+            }
+        }
+
         $http.get('competitions/manifest.json')
             .success(function (data, status, headers, config) {
                 if (status === 200) {
@@ -51,12 +77,28 @@
                             if (status === 200) {
                                 $scope.events = angular.fromJson(data).events;
                                 $scope.selectedEvent = $scope.events[0];
+                                computeEvents();
                             }
                         });
                 }
             });
 
+
         $scope.lookup = "";
+        $scope.competitorLookup = "";
+
+        $scope.changeCompetition = function(){
+            if ($scope.selectedCompetition) {
+                $http.get('competitions/' + $scope.selectedCompetition.key + '.json')
+                    .success(function(data, status, headers, config){
+                        if (status === 200) {
+                            $scope.events = angular.fromJson(data).events;
+                            $scope.selectedEvent = $scope.events[0];
+                            computeEvents();
+                        }
+                    });
+            }
+        };
 
         $scope.select = function (item, model, label) {
 
@@ -67,6 +109,14 @@
                     break;
                 }
             }
+        };
+
+        $scope.selectCompetitor = function(item, model, label) {
+            $scope.selectedCompetitor = $scope.competitors[item.name];
+        };
+
+        $scope.getEventName = function(eventId) {
+            return $scope.events[eventId].name;
         };
 
     });
