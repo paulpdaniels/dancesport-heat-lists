@@ -17,10 +17,9 @@ namespace DancingDuck
             var nameScraper = new CityLightsNameScraper();
             var eventScraper = new CityLightsEventScraper();
 
-            nameScraper.Scrape(new Uri("http://www.citylightsball.com/pages/heat_lists/#"));
+            nameScraper.Scrape(new Uri("http://usnationals.byudancesport.com/pages/heat_lists/Default.asp#"));
 
             var events = nameScraper.Dancers
-                .Take(20)
                 .SelectMany((dancer, idx) => eventScraper.GetEvents(dancer), 
                 (dancer, idx1, events2, idx2) => new KeyValuePair<string, Dancer>(events2, dancer))
                 .Where(keyValue => !String.IsNullOrEmpty(keyValue.Key))
