@@ -4,7 +4,7 @@
             <div id="competition-selector" class="col-xs-12">
                 <label>
                     <span>Select Competition:</span>
-                    <select class="form-control" ng-model="selectedCompetition"
+                    <select class="form-control" ng-model="selectedCompetition" ng-change="changeCompetition()"
                             ng-options="comp as comp.name for comp in competitions"></select>
                 </label>
             </div>
