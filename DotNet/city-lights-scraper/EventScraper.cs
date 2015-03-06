@@ -14,10 +14,14 @@ namespace DancingDuck
 
         public IObservable<string> GetEvents(Dancer dancer)
         {
-            return  
-                CQ.CreateFromUrlAsync(dancer.Uri, new ServerConfig { Timeout = TimeSpan.FromSeconds(5) }).ToObservable()
+            return Observable.Start(() => CQ.CreateFromUrlAsync(dancer.Uri, new ServerConfig { Timeout = TimeSpan.FromSeconds(5) }).ToObservable(), System.Reactive.Concurrency.TaskPoolScheduler.Default)
+                .Concat()
                 .Select(response => response.Dom)
                 .SelectMany(this.DoGetEvents);
+                
+                //CQ.CreateFromUrlAsync(dancer.Uri, new ServerConfig { Timeout = TimeSpan.FromSeconds(5) }).ToObservable()
+                //.Select(response => response.Dom)
+                //.SelectMany(this.DoGetEvents);
         }
 
         protected abstract IEnumerable<string> DoGetEvents(CQ dom);

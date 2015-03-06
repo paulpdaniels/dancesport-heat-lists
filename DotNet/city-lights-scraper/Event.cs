@@ -16,6 +16,9 @@ namespace DancingDuck
         [JsonProperty("name")]
         public string Name { get; set; }
 
+        [JsonProperty("time")]
+        public string Time { get; set; }
+
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder(String.Format("Name: {0}", Name));
