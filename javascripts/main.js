@@ -46,6 +46,19 @@
             $scope.competitorList = [];
         }
 
+        function reload() {
+            if ($scope.selectedCompetition) {
+                $http.get('competitions/' + $scope.selectedCompetition.key + '.json')
+                    .success(function(data, status, headers, config){
+                        if (status === 200) {
+                            $scope.events = angular.fromJson(data).events;
+                            $scope.selectedEvent = $scope.events[0];
+                            computeEvents();
+                        }
+                    });
+            }
+        }
+
 
         function computeEvents() {
 
@@ -71,16 +84,7 @@
                     $scope.selectedCompetition = $scope.competitions[0];
                 }
 
-                if ($scope.selectedCompetition) {
-                    $http.get('competitions/' + $scope.selectedCompetition.key + '.json')
-                        .success(function (data, status, headers, config) {
-                            if (status === 200) {
-                                $scope.events = angular.fromJson(data).events;
-                                $scope.selectedEvent = $scope.events[0];
-                                computeEvents();
-                            }
-                        });
-                }
+                reload();
             });
 
 
@@ -88,16 +92,7 @@
         $scope.competitorLookup = "";
 
         $scope.changeCompetition = function(){
-            if ($scope.selectedCompetition) {
-                $http.get('competitions/' + $scope.selectedCompetition.key + '.json')
-                    .success(function(data, status, headers, config){
-                        if (status === 200) {
-                            $scope.events = angular.fromJson(data).events;
-                            $scope.selectedEvent = $scope.events[0];
-                            computeEvents();
-                        }
-                    });
-            }
+            reload();
         };
 
         $scope.select = function (item, model, label) {
