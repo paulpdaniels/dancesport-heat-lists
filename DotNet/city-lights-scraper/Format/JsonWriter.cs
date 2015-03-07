@@ -67,5 +67,6 @@ namespace DancingDuck.Format
                 return new MetaWrapper(this.Version) { Events = events };
             }
         }
+
     }
 }

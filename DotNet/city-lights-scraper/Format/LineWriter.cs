@@ -22,10 +22,6 @@ namespace DancingDuck.Format
             foreach (var item in events)
             {
                 writer.WriteLine("event: {0}", item.Name);
-                foreach (var dancer in item.Dancers)
-                {
-                    writer.WriteLine("\t{0}", dancer.Name);
-                }
             }
 
             await writer.FlushAsync();

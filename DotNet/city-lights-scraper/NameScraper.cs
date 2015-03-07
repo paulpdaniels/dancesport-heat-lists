@@ -22,9 +22,10 @@ namespace DancingDuck
 
         public void Scrape(Uri requestUri)
         {
-            var domObservable = CQ.CreateFromUrlAsync(requestUri.AbsoluteUri)
-                .ToObservable()
-                .Select(response => response.Dom);
+
+            var domObservable =
+                Observable.Start(() => CQ.CreateFromUrl(requestUri.AbsoluteUri))
+                .Retry(10);
 
             
             DoScrape(domObservable).Subscribe(this._dancers);

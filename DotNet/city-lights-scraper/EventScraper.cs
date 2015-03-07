@@ -12,19 +12,14 @@ namespace DancingDuck
     public abstract class EventScraper
     {
 
-        public IObservable<string> GetEvents(Dancer dancer)
+        public async Task<IEnumerable<Event>> GetEvents(Dancer dancer)
         {
-            return Observable.Start(() => CQ.CreateFromUrlAsync(dancer.Uri, new ServerConfig { Timeout = TimeSpan.FromSeconds(5) }).ToObservable(), System.Reactive.Concurrency.TaskPoolScheduler.Default)
-                .Concat()
-                .Select(response => response.Dom)
-                .SelectMany(this.DoGetEvents);
-                
-                //CQ.CreateFromUrlAsync(dancer.Uri, new ServerConfig { Timeout = TimeSpan.FromSeconds(5) }).ToObservable()
-                //.Select(response => response.Dom)
-                //.SelectMany(this.DoGetEvents);
+            ICsqWebResponse webResponse = await CQ.CreateFromUrlAsync(dancer.Uri, new ServerConfig { Timeout = TimeSpan.FromSeconds(5) });
+
+            return DoGetEvents(webResponse.Dom);
         }
 
-        protected abstract IEnumerable<string> DoGetEvents(CQ dom);
+        protected abstract IEnumerable<Event> DoGetEvents(CQ dom);
 
     }
 }

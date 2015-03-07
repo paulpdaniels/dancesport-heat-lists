@@ -15,42 +15,51 @@ namespace DancingDuck
 
         public static IObservable<T> ToObservable<T>(this IPromise<T> promise)
         {
-            var subject = new AsyncSubject<T>();
-
-            promise.Then(new PromiseAction<T>((t) =>
+            return Observable.Create<T>(observer =>
             {
-                subject.OnNext(t);
-                subject.OnCompleted();
-            }),
-            new PromiseAction<T>(
-            (t) =>
-            {
-                subject.OnError(new Exception());
-            }));
+                var subject = new AsyncSubject<T>();
 
-            return subject.AsObservable();
+                promise.Then(new PromiseAction<T>((t) =>
+                {
+                    subject.OnNext(t);
+                    subject.OnCompleted();
+                }),
+                new PromiseAction<T>(
+                (t) =>
+                {
+                    subject.OnError(new Exception());
+                }));
+
+                return subject.Subscribe(observer);
+
+            });
+
+
 
         }
 
         public static IObservable<T> ToObservable<T>(this IPromise<T> promise, TimeSpan timeout)
         {
-                        
-            var subject = new AsyncSubject<T>();
 
-            When.All((int)timeout.TotalMilliseconds, promise)
-            .Then(new PromiseAction<T>((t) =>
+            return Observable.Create<T>(observer =>
             {
-                subject.OnNext(t);
-                subject.OnCompleted();
-            }),
-            new PromiseAction<T>(
-            (t) =>
-            {
-                subject.OnError(new Exception());
-            }));
+                var subject = new AsyncSubject<T>();
 
-            return subject.AsObservable();
+                When.All((int)timeout.TotalMilliseconds, promise)
+                .Then(new PromiseAction<T>((t) =>
+                {
+                    subject.OnNext(t);
+                    subject.OnCompleted();
+                }),
+                new PromiseAction<T>(
+                (t) =>
+                {
+                    subject.OnError(new Exception());
+                }));
 
+                return subject.Subscribe(observer);
+
+            });
         }
 
         public static System.Runtime.CompilerServices.TaskAwaiter<T> GetAwaiter<T>(this IPromise<T> promise)
