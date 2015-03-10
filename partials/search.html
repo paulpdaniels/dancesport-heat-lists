@@ -12,7 +12,7 @@
                 <label>
                     <span>Select Event:</span>
                     <select class="form-control" ng-model="selectedEvent"
-                            ng-options="event as event.name for event in events"></select>
+                            ng-options="event as event.name for event in events" ng-change="changeEvent()"></select>
                 </label>
             </div>
             <div id="search-bar" class="col-xs-12">
@@ -20,7 +20,7 @@
                     <span>Search Event:</span>
                     <input class="form-control" type="text" ng-model="lookup" typeahead-wait-ms="250"
                            typeahead-min-length="3"
-                           typeahead-on-select="select($item, $model, $label)"
+                           typeahead-on-select="searchEvent($item, $model, $label)"
                            typeahead="event as event.name for event in events | filter:$viewValue">
                 </label>
             </div>
@@ -28,7 +28,7 @@
 
         <div id="dancer-list" class="col-xs-12 well well-lg">
             <ol>
-                <li ng-repeat="dancer in selectedEvent.dancers">{{dancer.name}}</li>
+                <li ng-repeat="dancer in selectedCompetitors">{{dancer.name}}</li>
             </ol>
         </div>
 
@@ -37,14 +37,14 @@
                 <span>Search Competitor:</span>
                 <input class="form-control" type="text" ng-model="competitorLookup" typeahead-wait-ms="250"
                        typeahead-min-length="3"
-                       typeahead-on-select="selectCompetitor($item, $model, $label)"
-                       typeahead="competitor as competitor.name for competitor in competitorList | filter:$viewValue">
+                       typeahead-on-select="searchCompetitor($item, $model, $label)"
+                       typeahead="competitor as competitor.name for competitor in competitors | filter:$viewValue">
             </label>
         </div>
         <div id="competitor-well" class="col-xs-12">
             <div id="event-list" class="col-xs-12 well well-lg">
                 <ol>
-                    <li ng-repeat="event in selectedCompetitor">{{getEventName(event)}}</li>
+                    <li ng-repeat="event in selectedCompetitor.events">{{getEventName(event)}}</li>
                 </ol>
             </div>
         </div>

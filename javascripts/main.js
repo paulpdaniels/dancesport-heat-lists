@@ -22,7 +22,6 @@
 
         $scope.activeItem = '/search';
 
-
         $rootScope.$on('$routeChangeSuccess', function() {
             $scope.activeItem = $location.url();
         });
@@ -30,51 +29,37 @@
     });
 
 
-    module.controller('CompetitionController', function ($scope, $http, $q) {
+    module.controller('CompetitionController', function ($scope, $http, $route, $routeParams) {
 
         $scope.competitions = [];
-        $scope.selectedCompetition = null;
         $scope.events = [];
+        $scope.competitors = [];
+
+        $scope.selectedCompetition = null;
         $scope.selectedEvent = null;
-
-        $scope.competitors = {};
-        $scope.competitorList = [];
         $scope.selectedCompetitor = null;
-
-        function reset() {
-            $scope.competitors = {}; $scope.selectedCompetitor = null;
-            $scope.competitorList = [];
-        }
 
         function reload() {
             if ($scope.selectedCompetition) {
                 $http.get('competitions/' + $scope.selectedCompetition.key + '.json')
                     .success(function(data, status, headers, config){
                         if (status === 200) {
-                            $scope.events = angular.fromJson(data).events;
+                            var jsonData = angular.fromJson(data);
+
+                            //Can't read the old data now...whoops
+                            if (jsonData.version < 2)
+                                return;
+
+                            $scope.events = jsonData.events;
+                            $scope.competitors = jsonData.dancers;
                             $scope.selectedEvent = $scope.events[0];
-                            computeEvents();
+
+                            $scope.changeEvent();
                         }
                     });
             }
         }
 
-
-        function computeEvents() {
-
-            reset();
-
-            for (var i = 0, len = $scope.events.length; i < len; ++i) {
-                var event = $scope.events[i];
-                if (!event) continue;
-                for (var j = 0, jlen = event.dancers.length; j < jlen; j++) {
-                    if (!event.dancers[j]) continue;
-                    var name = event.dancers[j].name;
-                    !$scope.competitors[name] && ($scope.competitors[name] = []) && $scope.competitorList.push(event.dancers[j]);
-                    $scope.competitors[name].push(i);
-                }
-            }
-        }
 
         $http.get('competitions/manifest.json')
             .success(function (data, status, headers, config) {
@@ -88,30 +73,42 @@
             });
 
 
-        $scope.lookup = "";
+        $scope.eventLookup = "";
         $scope.competitorLookup = "";
 
         $scope.changeCompetition = function(){
             reload();
         };
 
-        $scope.select = function (item, model, label) {
+        $scope.changeEvent = function() {
 
-            var i = 0;
-            for (var len = $scope.events.length; i < len; ++i) {
+            $scope.selectedCompetitors =
+                _.filter($scope.competitors, function(competitor){
+                    return _.includes(competitor.events, $scope.selectedEvent.$id) ;
+                });
+        };
+
+        $scope.searchEvent = function (item, model, label) {
+
+            for (var i = 0, len = $scope.events.length; i < len; ++i) {
                 if (model == $scope.events[i]) {
                     $scope.selectedEvent = $scope.events[i];
                     break;
                 }
             }
+
+            $scope.changeEvent();
         };
 
-        $scope.selectCompetitor = function(item, model, label) {
-            $scope.selectedCompetitor = $scope.competitors[item.name];
+        $scope.searchCompetitor = function(item, model, label) {
+            $scope.selectedCompetitor = _.find($scope.competitors, {$id : item.$id});
         };
 
         $scope.getEventName = function(eventId) {
-            return $scope.events[eventId].name;
+            var event = _.find($scope.events, {$id : eventId});
+
+            if (event)
+                return event.name;
         };
 
     });
