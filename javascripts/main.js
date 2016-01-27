@@ -42,12 +42,11 @@
         function reload() {
             if ($scope.selectedCompetition) {
                 $http.get('competitions/' + $scope.selectedCompetition.key + '.json')
-                    .success(function (data, status, headers, config) {
-                        if (status === 200) {
-                            var jsonData = angular.fromJson(data);
+                    .then(function (res) {
+                            var jsonData = angular.fromJson(res.data);
 
                             //Can't read the old data now...whoops
-                            if (jsonData.version < 2)
+                            if (jsonData.version < 4)
                                 return;
 
                             $scope.events = jsonData.events;
@@ -55,7 +54,6 @@
                             $scope.selectedEvent = $scope.events[0];
 
                             $scope.changeEvent();
-                        }
                     });
             }
         }
@@ -69,10 +67,6 @@
                 reload();
             });
 
-
-        $scope.eventLookup = "";
-        $scope.competitorLookup = "";
-
         $scope.changeCompetition = function () {
             reload();
         };
@@ -83,10 +77,7 @@
                 return _.includes(competitor.events, $scope.selectedEvent.$id);
             });
 
-
-            var partners = createPartnerships(competitors);
-
-            $scope.selectedCompetitors = partners;
+            $scope.selectedCompetitors = createPartnerships(competitors);
 
         };
 

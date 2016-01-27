@@ -35,7 +35,8 @@
         <div id="competitor-bar" class="col-xs-12">
             <label>
                 <span>Search Competitor:</span>
-                <input class="form-control" type="text" ng-model="competitorLookup" typeahead-wait-ms="250"
+                <input class="form-control" type="text"
+                       ng-model="competitorLookup" typeahead-wait-ms="250"
                        typeahead-min-length="3"
                        typeahead-on-select="searchCompetitor($item, $model, $label)"
                        typeahead="competitor as competitor.name for competitor in competitors | filter:$viewValue">
