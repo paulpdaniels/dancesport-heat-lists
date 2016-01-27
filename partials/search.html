@@ -28,7 +28,7 @@
 
         <div id="dancer-list" class="col-xs-12 well well-lg">
             <ol>
-                <li ng-repeat="dancer in selectedCompetitors">{{dancer.name}}</li>
+                <li ng-repeat="dancer in selectedCompetitors">{{dancer[0].name}} with {{dancer[1].name}}</li>
             </ol>
         </div>
 

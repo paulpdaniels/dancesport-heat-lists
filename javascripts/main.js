@@ -18,11 +18,11 @@
 
     });
 
-    module.controller('NavigationController', function($scope, $rootScope, $location) {
+    module.controller('NavigationController', function ($scope, $rootScope, $location) {
 
         $scope.activeItem = '/search';
 
-        $rootScope.$on('$routeChangeSuccess', function() {
+        $rootScope.$on('$routeChangeSuccess', function () {
             $scope.activeItem = $location.url();
         });
 
@@ -42,7 +42,7 @@
         function reload() {
             if ($scope.selectedCompetition) {
                 $http.get('competitions/' + $scope.selectedCompetition.key + '.json')
-                    .success(function(data, status, headers, config){
+                    .success(function (data, status, headers, config) {
                         if (status === 200) {
                             var jsonData = angular.fromJson(data);
 
@@ -62,13 +62,10 @@
 
 
         $http.get('competitions/manifest.json')
-            .success(function (data, status, headers, config) {
-                if (status === 200) {
-                    var manifest = angular.fromJson(data);
-                    $scope.competitions = manifest.competitions;
-                    $scope.selectedCompetition = $scope.competitions[0];
-                }
-
+            .then(function (resp) {
+                var manifest = angular.fromJson(resp.data);
+                $scope.competitions = manifest.competitions;
+                $scope.selectedCompetition = $scope.competitions[0];
                 reload();
             });
 
@@ -76,16 +73,21 @@
         $scope.eventLookup = "";
         $scope.competitorLookup = "";
 
-        $scope.changeCompetition = function(){
+        $scope.changeCompetition = function () {
             reload();
         };
 
-        $scope.changeEvent = function() {
+        $scope.changeEvent = function () {
 
-            $scope.selectedCompetitors =
-                _.filter($scope.competitors, function(competitor){
-                    return _.includes(competitor.events, $scope.selectedEvent.$id) ;
-                });
+            var competitors = _.filter($scope.competitors, function (competitor) {
+                return _.includes(competitor.events, $scope.selectedEvent.$id);
+            });
+
+
+            var partners = createPartnerships(competitors);
+
+            $scope.selectedCompetitors = partners;
+
         };
 
         $scope.searchEvent = function (item, model, label) {
@@ -100,16 +102,48 @@
             $scope.changeEvent();
         };
 
-        $scope.searchCompetitor = function(item, model, label) {
-            $scope.selectedCompetitor = _.find($scope.competitors, {$id : item.$id});
+        $scope.searchCompetitor = function (item, model, label) {
+            $scope.selectedCompetitor = _.find($scope.competitors, {$id: item.$id});
         };
 
-        $scope.getEventName = function(eventId) {
-            var event = _.find($scope.events, {$id : eventId});
+        $scope.getEventName = function (eventId) {
+            var event = _.find($scope.events, {$id: eventId});
 
             if (event)
                 return event.name;
         };
+
+        function createPartnerships(competitors) {
+
+            var partnerships = [];
+
+            while (competitors.length > 0) {
+
+                var head = competitors.pop();
+
+                for (var i = 0, ii = competitors.length; i < ii; ++i) {
+
+                    if (!_.includes(competitors[i].partners, head.name) ||
+                        !_.includes(head.partners, competitors[i].name)) {
+                        continue;
+                    }
+
+                    swapArray(competitors, i, competitors.length - 1);
+                    partnerships.push([head, competitors.pop()]);
+
+                    break;
+                }
+
+            }
+
+            return partnerships;
+        }
+
+        function swapArray(arr, i, j) {
+            var temp = arr[i];
+            arr[i] = arr[j];
+            arr[j] = temp;
+        }
 
     });
 
