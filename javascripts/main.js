@@ -7,18 +7,37 @@
     'use strict';
     var module = angular.module('dancesportHeatLists', ['ui.bootstrap', 'ngRoute']);
 
-    module.config(function ($routeProvider) {
+    module.config(['$routeProvider', function ($routeProvider) {
         $routeProvider
             .when('/about', {templateUrl: 'partials/about.html', controller: 'AboutController'})
             .when('/search', {templateUrl: 'partials/search.html', controller: 'CompetitionController'})
             .otherwise('/search');
-    });
+    }]);
 
-    module.controller('AboutController', function ($scope) {
+    module.factory('CompetitionService', ['$http', function($http) {
 
-    });
 
-    module.controller('NavigationController', function ($scope, $rootScope, $location) {
+        return {
+            getCompetition : function(competitionKey) {
+                return $http.get('competitions/' + competitionKey  + '.json')
+                    .then(function(resp) {
+                        return angular.fromJson(resp.data);
+                    })
+            },
+            getCompetitionList : function() {
+                return $http.get('competitions/manifest.json')
+                    .then(function(resp) {
+                        return angular.fromJson(resp.data);
+                    });
+            }
+        }
+    }]);
+
+    module.controller('AboutController', ['$scope', function ($scope) {
+
+    }]);
+
+    module.controller('NavigationController', ['$scope', '$rootScope', '$location', function ($scope, $rootScope, $location) {
 
         $scope.activeItem = '/search';
 
@@ -26,10 +45,11 @@
             $scope.activeItem = $location.url();
         });
 
-    });
+    }]);
 
 
-    module.controller('CompetitionController', function ($scope, $http, $route, $routeParams) {
+    module.controller('CompetitionController', ['$scope', '$http', 'CompetitionService',
+        function ($scope, $http, CompetitionService) {
 
         $scope.competitions = [];
         $scope.events = [];
@@ -41,27 +61,24 @@
 
         function reload() {
             if ($scope.selectedCompetition) {
-                $http.get('competitions/' + $scope.selectedCompetition.key + '.json')
-                    .then(function (res) {
-                            var jsonData = angular.fromJson(res.data);
+                CompetitionService.getCompetition($scope.selectedCompetition.key)
+                    .then(function(competition) {
+                        if (competition.version < 4) {
+                            return;
+                        }
 
-                            //Can't read the old data now...whoops
-                            if (jsonData.version < 4)
-                                return;
+                        $scope.events = competition.events;
+                        $scope.competitors = competition.dancers;
+                        $scope.selectedEvent = $scope.events[0];
 
-                            $scope.events = jsonData.events;
-                            $scope.competitors = jsonData.dancers;
-                            $scope.selectedEvent = $scope.events[0];
-
-                            $scope.changeEvent();
+                        $scope.changeEvent();
                     });
             }
         }
 
 
-        $http.get('competitions/manifest.json')
-            .then(function (resp) {
-                var manifest = angular.fromJson(resp.data);
+        CompetitionService.getCompetitionList()
+            .then(function (manifest) {
                 $scope.competitions = manifest.competitions;
                 $scope.selectedCompetition = $scope.competitions[0];
                 reload();
@@ -82,14 +99,7 @@
         };
 
         $scope.searchEvent = function (item, model, label) {
-
-            for (var i = 0, len = $scope.events.length; i < len; ++i) {
-                if (model == $scope.events[i]) {
-                    $scope.selectedEvent = $scope.events[i];
-                    break;
-                }
-            }
-
+            $scope.selectedEvent = _.find($scope.events, {$id: item.$id});
             $scope.changeEvent();
         };
 
@@ -136,7 +146,7 @@
             arr[j] = temp;
         }
 
-    });
+    }]);
 
 })(window);
 
