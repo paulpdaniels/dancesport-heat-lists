@@ -1,0 +1,34 @@
+{
+  "name": "dancesport-heat-lists",
+  "version": "1.0.0",
+  "description": "A repository for all the heat lists your always wanted",
+  "main": "Gruntfile.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/paulpdaniels/dancesport-heat-lists.git"
+  },
+  "keywords": [
+    "dancesport",
+    "heatlists",
+    "angular",
+    "webcrawling"
+  ],
+  "author": "Paul Daniels",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/paulpdaniels/dancesport-heat-lists/issues"
+  },
+  "homepage": "https://github.com/paulpdaniels/dancesport-heat-lists#readme",
+  "dependencies": {
+    "grunt-minjson": "^0.4.0"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.5",
+    "grunt-contrib-concat": "^0.5.1",
+    "grunt-contrib-copy": "^0.8.2",
+    "grunt-contrib-uglify": "^0.11.0"
+  }
+}

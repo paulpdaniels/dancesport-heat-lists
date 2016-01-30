@@ -19,13 +19,13 @@
 
         return {
             getCompetition : function(competitionKey) {
-                return $http.get('competitions/' + competitionKey  + '.json')
+                return $http.get('dist/competitions/' + competitionKey  + '.json')
                     .then(function(resp) {
                         return angular.fromJson(resp.data);
                     })
             },
             getCompetitionList : function() {
-                return $http.get('competitions/manifest.json')
+                return $http.get('dist/competitions/manifest.json')
                     .then(function(resp) {
                         return angular.fromJson(resp.data);
                     });

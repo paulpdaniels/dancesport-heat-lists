@@ -9,7 +9,7 @@ module.exports = function(grunt) {
         minjson: {
             compile: {
                 files: grunt.file.expandMapping(['competitions/*.json'], 'dist/', {
-                    ext: '.min.json'
+                    ext: '.json'
                 })
             }
         },
