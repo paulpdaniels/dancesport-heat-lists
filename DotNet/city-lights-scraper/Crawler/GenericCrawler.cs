@@ -2,9 +2,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Concurrency;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
 
 namespace DancingDuck.Crawler
 {
@@ -44,12 +47,9 @@ namespace DancingDuck.Crawler
 
         public IObservable<CrawlResult> Crawl(CrawlResult result)
         {
-            var uri = result.Uri;
+            var crawl = this.CreateCrawlerForUri(result.Uri);
 
-            var crawl = Observable.Start(() => CQ.CreateFromUrl(uri.AbsoluteUri))
-                .Retry(10);
-
-            return crawl.Select(cq => new CrawlResult(uri, cq))
+            return crawl.Select(cq => new CrawlResult(result.Uri, cq))
                 .SelectMany(cr => this.SubCrawlers.Where(sub => sub.CanCrawl(cr)),
                 (cr, sub) => sub.Crawl(cr))
                 .Merge();
@@ -65,6 +65,12 @@ namespace DancingDuck.Crawler
 
     public class ParticipantCrawler : IGenericCrawler
     {
+        private IScheduler scheduler;
+
+        public ParticipantCrawler(IScheduler scheduler = null)
+        {
+            this.scheduler = scheduler;
+        }
 
         public bool CanCrawl(CrawlResult result)
         {
@@ -87,8 +93,7 @@ namespace DancingDuck.Crawler
 
             return urls.ToObservable().SelectMany(url =>
             {
-                return Observable.Start(() => CQ.CreateFromUrl(url))
-                .Retry(10);
+                return this.CreateCrawlerForUri(new Uri(url), scheduler: this.scheduler);
             }, (url, cq) => new CrawlResult(new Uri(url), cq));
 
         }

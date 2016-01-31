@@ -13,6 +13,7 @@ using System.Collections.Concurrent;
 using System.Threading;
 using DancingDuck.Crawler;
 using DancingDuck.Model;
+using System.Reactive.Concurrency;
 
 namespace DancingDuck
 {
@@ -29,6 +30,27 @@ namespace DancingDuck
             Console.ReadLine();
         }
 
+        public class TimerDisposable : IDisposable
+        {
+            private bool isDisposed;
+            private DateTime _startedAt;
+
+            public TimerDisposable()
+            {
+                _startedAt = DateTime.Now;
+            }
+
+            public void Dispose()
+            {
+                if (!isDisposed)
+                {
+                    var elapsed = DateTime.Now.Subtract(_startedAt);
+                    Console.WriteLine("==== Total Time: {0} =====", elapsed.TotalMilliseconds);
+                    isDisposed = true;
+                }
+            }
+        }
+
         private static void StartCrawl(string [] args)
         {
             var config = defaultPaths.First(File.Exists);
@@ -38,7 +60,7 @@ namespace DancingDuck
             var rootCrawler = new RootCrawler();
             var extractor = new ParticipantExtractor(new EventExtractor());
 
-            rootCrawler.SubCrawlers.Add(new ParticipantCrawler());
+            rootCrawler.SubCrawlers.Add(new ParticipantCrawler(new System.Reactive.Concurrency.EventLoopScheduler()));
 
             var extraction = rootCrawler.Crawl(new Uri(url))
                 .Do(x => Console.WriteLine("Extracting: " + x.Uri))
@@ -50,14 +72,14 @@ namespace DancingDuck
 
             var participants = extraction
                 .Do(dancer => Console.WriteLine("Processed: {0} with {1} dances", dancer.Name, dancer.Events.Count))
-                .Select(DancerView.FromDancer).ToList();
+                .ToList();
 
-            dances.Zip(participants, (left, right) => 
+            Observable.Using(() => new TimerDisposable(), _ => dances.Zip(participants, (left, right) => 
                 new Competition {
                     Dancers = right,
                     Events = left,
-                    Version = 4
-                })
+                    Version = 5
+                }))
                 .Subscribe(body => {
                     Console.WriteLine("Finished processing.  Starting write back");
 

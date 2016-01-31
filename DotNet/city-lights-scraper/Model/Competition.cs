@@ -16,7 +16,7 @@ namespace DancingDuck.Model
         public short Version { get; set; }
 
         [JsonProperty("dancers")]
-        public IList<DancerView> Dancers { get; set; }
+        public IList<Dancer> Dancers { get; set; }
 
         [JsonProperty("events")]
         public IList<Event> Events { get; set; }

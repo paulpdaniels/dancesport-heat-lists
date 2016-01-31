@@ -26,14 +26,13 @@ namespace DancingDuck.Crawler
             var dom = crawlResult.DOM;
             var uri = crawlResult.Uri;
 
-            var dancerName = dom["#header > span"].Select(x => x.InnerText);
+            var dancerName = dom["#header > span"].Select(x => x.InnerText.Trim());
             var partnerNames = dom["#heat_lists > table > tbody > tr > td[colspan='4'] > p"]
                 .Select(pn => {
                     var trimmedText = pn.InnerText.Trim(':', ' ');
                     var withIndex = trimmedText.IndexOf("with");
                     var minusWith = trimmedText.Substring(withIndex + 4).Trim();
-                    var tokens = minusWith.Split(new char[] {' '});
-                    return tokens.Last() + ", " + String.Join(" ", tokens.Take(tokens.Length - 1));
+                    return minusWith;
                 });
 
             return from name in dancerName

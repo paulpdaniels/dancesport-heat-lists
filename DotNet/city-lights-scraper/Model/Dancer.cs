@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using DancingDuck.Util;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,21 +11,41 @@ namespace DancingDuck
     [JsonObject]
     public class Dancer
     {
-        private static int s_index = 0; 
+        private static readonly char[] splitTokens = new char[] { ',' };
+        public static string ComputeNameHash(string name)
+        {
+            var nameParts = name.Split(splitTokens, 2);
+            var normalizedName = String.Join(" ", nameParts.Reverse()).Trim();
+            return ShaHelpers.ComputeSha1Hash(normalizedName, 6);
+        }
+
         public Dancer()
         {
             this.Events = new List<Event>();
-            this.Id = Interlocked.Increment(ref s_index).ToString();
         }
 
+        [JsonProperty("$id")]
         public string Id
         {
-            get;
-            private set;
+            get
+            {
+                return ComputeNameHash(this.Name);
+            }
         }
 
-        [JsonProperty(PropertyName = "events")]
+        
+        [JsonIgnore]
         public List<Event> Events { get; set; }
+
+        [JsonProperty("events")]
+        public IEnumerable<string> EventsHelper
+        {
+            get
+            {
+                return from ev in Events
+                       select ev.Id;
+            }
+        }
 
         [JsonProperty("name")]
         public string Name { get; set; }
@@ -41,76 +62,16 @@ namespace DancingDuck
             return builder.ToString();
         }
 
+        [JsonIgnore]
         public List<string> Partners { get; set; }
-    }
-
-
-    [JsonObject]
-    public class DancerView
-    {
-        private Dancer _dancer;
-
-        public DancerView(Dancer dancer)
-        {
-            this._dancer = dancer;
-        }
-
-        [JsonProperty("$id")]
-        public string Id
-        {
-            get
-            {
-                return _dancer.Id;
-            }
-        }
-
-        [JsonProperty(PropertyName = "events")]
-        public IEnumerable<string> Events
-        {
-            get
-            {
-                return _dancer.Events.Select(ev => ev.Id);
-            }
-        }
-
-        [JsonProperty("name")]
-        public string Name
-        {
-            get
-            {
-                return _dancer.Name;
-            }
-        }
 
         [JsonProperty("partners")]
-        public IEnumerable<string> Partners
-        {
-            get { return this._dancer.Partners; }
-        }
-
-        [JsonIgnore]
-        public string Uri
+        public IEnumerable<string> PartnersHelper
         {
             get
             {
-                return _dancer.Uri;
+                return Partners.Select(x => ComputeNameHash(x));
             }
         }
-
-        public override string ToString()
-        {
-            StringBuilder builder = new StringBuilder(String.Format("Name: {0}, Uri: {1}", Name, Uri));
-
-            builder.AppendLine();
-
-            return builder.ToString();
-        }
-
-
-        public static DancerView FromDancer(Dancer dancer)
-        {
-            return new DancerView(dancer);
-        }
     }
-
 }
