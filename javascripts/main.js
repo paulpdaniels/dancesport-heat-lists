@@ -76,7 +76,6 @@
             }
         }
 
-
         CompetitionService.getCompetitionList()
             .then(function (manifest) {
                 $scope.competitions = manifest.competitions;
@@ -124,8 +123,8 @@
 
                 for (var i = 0, ii = competitors.length; i < ii; ++i) {
 
-                    if (!_.includes(competitors[i].partners, head.name) ||
-                        !_.includes(head.partners, competitors[i].name)) {
+                    if (!_.includes(competitors[i].partners, head.$id) ||
+                        !_.includes(head.partners, competitors[i].$id)) {
                         continue;
                     }
 
