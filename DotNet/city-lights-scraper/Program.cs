@@ -12,49 +12,52 @@ using Newtonsoft.Json;
 using System.Collections.Concurrent;
 using System.Threading;
 using DancingDuck.Crawler;
+using DancingDuck.Model;
 
 namespace DancingDuck
 {
     class Program
     {
+
+        private static readonly IEnumerable<string> defaultPaths = new string[] { 
+            "crawl.txt", "crawl.json"
+        };
+
         static void Main(string[] args)
         {
-            ProcessScrape(args);
+            StartCrawl(args);
             Console.ReadLine();
         }
 
-        private static void ProcessScrape(string [] args)
+        private static void StartCrawl(string [] args)
         {
+            var config = defaultPaths.First(File.Exists);
+
+            var url = File.ReadLines(config).First().Split(' ')[1];
+            
             var rootCrawler = new RootCrawler();
-            var extractor = new ParticipantExtractor();
+            var extractor = new ParticipantExtractor(new EventExtractor());
 
             rootCrawler.SubCrawlers.Add(new ParticipantCrawler());
 
-            var extraction = rootCrawler.Crawl(new Uri("http://www.citylightsball.com/pages/heat_lists/"))
+            var extraction = rootCrawler.Crawl(new Uri(url))
                 .Do(x => Console.WriteLine("Extracting: " + x.Uri))
                 .SelectMany(extractor.Extract)
                 .Publish();
 
             var dances = extraction.SelectMany(dancer => dancer.Events)
-                .Distinct(ev => ev.Name).Aggregate(new JArray(), (root, dance) =>
-                {
-                    root.Add(JObject.FromObject(dance));
-                    return root;
-                });
+                .Distinct(ev => ev.Name).ToList();
 
             var participants = extraction
                 .Do(dancer => Console.WriteLine("Processed: {0} with {1} dances", dancer.Name, dancer.Events.Count))
-                .Select(DancerView.FromDancer)
-                .Aggregate(new JArray(), (root, dancer) =>
-                {
-                    root.Add(JObject.FromObject(dancer));
-                    return root;
-                });
+                .Select(DancerView.FromDancer).ToList();
 
             dances.Zip(participants, (left, right) => 
-                new JObject(new JProperty("version", 4),
-                    new JProperty("dancers", right),
-                    new JProperty("events", left)))
+                new Competition {
+                    Dancers = right,
+                    Events = left,
+                    Version = 4
+                })
                 .Subscribe(body => {
                     Console.WriteLine("Finished processing.  Starting write back");
 
@@ -63,7 +66,6 @@ namespace DancingDuck
                         new JsonSerializer()
                         {
                             Formatting = Formatting.Indented,
-                            PreserveReferencesHandling = PreserveReferencesHandling.Arrays
                         }
                         .Serialize(writer, body);
 

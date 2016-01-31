@@ -42,5 +42,11 @@ namespace DancingDuck
 
             return builder.ToString();
         }
+
+        [JsonProperty("heat")]
+        public string Heat { get; set; }
+
+        [JsonProperty("session")]
+        public string Session { get; set; }
     }
 }

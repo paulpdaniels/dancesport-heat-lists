@@ -7,9 +7,14 @@ using System.Threading.Tasks;
 
 namespace DancingDuck.Crawler
 {
-    public class ParticipantExtractor
+    public class ParticipantExtractor : IExtractor<Dancer>
     {
-        private static readonly Regex regex = new Regex("\\s{2,}");
+        private IExtractor<Event> eventExtractor;
+
+        public ParticipantExtractor(IExtractor<Event> eventExtractor)
+        {
+            this.eventExtractor = eventExtractor;
+        } 
 
         public bool CanExtract(CrawlResult result)
         {
@@ -27,18 +32,17 @@ namespace DancingDuck.Crawler
                     var trimmedText = pn.InnerText.Trim(':', ' ');
                     var withIndex = trimmedText.IndexOf("with");
                     var minusWith = trimmedText.Substring(withIndex + 4).Trim();
-                    var tokens = minusWith.Split(new char[] {' '}, 2);
-                    return tokens[1] + ", " + tokens[0];
+                    var tokens = minusWith.Split(new char[] {' '});
+                    return tokens.Last() + ", " + String.Join(" ", tokens.Take(tokens.Length - 1));
                 });
-            var eventNames = dom["#heat_lists > table > tbody > tr:nth-child(n + 1) > td:nth-child(4) > p"].Select(
-                ev => regex.Replace(ev.InnerText.Trim(), " "));
 
             return from name in dancerName
                    select new Dancer
                    {
                        Name = name,
                        Uri = uri.AbsoluteUri,
-                       Events = eventNames.Select(ev => new Event {  Name = ev }).ToList(),
+                       Events = eventExtractor.Extract(crawlResult).ToList(),
+                       //Events = eventNames.Select(ev => new Event {  Name = ev }).ToList(),
                        Partners = partnerNames.Distinct().ToList()
                    };
 
