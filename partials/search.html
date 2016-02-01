@@ -28,7 +28,9 @@
 
         <div id="dancer-list" class="col-xs-12 well well-lg">
             <ol>
-                <li ng-repeat="dancer in selectedCompetitors">{{dancer[0].name}} with {{dancer[1].name}}</li>
+                <li ng-repeat="couple in selectedCompetitors">
+                    <a href="" ng-click="searchCompetitor(couple[0])">{{couple[0].name}}</a> with <a href="" ng-click="searchCompetitor(couple[1])">{{couple[1].name}}</a>
+                </li>
             </ol>
         </div>
 
@@ -45,7 +47,11 @@
         <div id="competitor-well" class="col-xs-12">
             <div id="event-list" class="col-xs-12 well well-lg">
                 <ol>
-                    <li ng-repeat="event in selectedCompetitor.events">{{getEventName(event)}}</li>
+                    <li ng-repeat="event in selectedCompetitor.events">
+                        <a href="" ng-click="searchEvent(getEvent(event))">
+                        {{getEvent(event).name}}
+                        </a>
+                    </li>
                 </ol>
             </div>
         </div>

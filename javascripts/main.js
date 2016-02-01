@@ -99,18 +99,24 @@
 
         $scope.searchEvent = function (item, model, label) {
             $scope.selectedEvent = _.find($scope.events, {$id: item.$id});
+            $scope.lookup = $scope.selectedEvent.name;
             $scope.changeEvent();
         };
 
         $scope.searchCompetitor = function (item, model, label) {
             $scope.selectedCompetitor = _.find($scope.competitors, {$id: item.$id});
+            $scope.competitorLookup = $scope.selectedCompetitor.name;
         };
 
-        $scope.getEventName = function (eventId) {
-            var event = _.find($scope.events, {$id: eventId});
+        var resolutionCache = {};
 
-            if (event)
-                return event.name;
+        $scope.getEvent = function (eventId) {
+            var event = resolutionCache[eventId] || _.find($scope.events, {$id: eventId});
+
+            if (event) {
+                resolutionCache[eventId] = event;
+                return event;
+            }
         };
 
         function createPartnerships(competitors) {
