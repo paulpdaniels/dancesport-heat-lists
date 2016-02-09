@@ -1,9 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "city-lights-scraper", "city-lights-scraper\city-lights-scraper.csproj", "{A01019FE-572F-444B-B991-363FD540FB7E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crawler.Core", "Crawler.Core\Crawler.Core.csproj", "{92DB3889-5A04-4551-B230-C6E469BA7F2D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "o2cm-crawler", "o2cm-crawler\o2cm-crawler.csproj", "{EA53F173-79C7-443E-812E-DDE5B912EF6A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{A01019FE-572F-444B-B991-363FD540FB7E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A01019FE-572F-444B-B991-363FD540FB7E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A01019FE-572F-444B-B991-363FD540FB7E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{92DB3889-5A04-4551-B230-C6E469BA7F2D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{92DB3889-5A04-4551-B230-C6E469BA7F2D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{92DB3889-5A04-4551-B230-C6E469BA7F2D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{92DB3889-5A04-4551-B230-C6E469BA7F2D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EA53F173-79C7-443E-812E-DDE5B912EF6A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA53F173-79C7-443E-812E-DDE5B912EF6A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA53F173-79C7-443E-812E-DDE5B912EF6A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA53F173-79C7-443E-812E-DDE5B912EF6A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -11,7 +11,7 @@ namespace DancingDuck.Crawler
 {
     public static class CrawlerExtensionMixins
     {
-        internal static IObservable<CQ> CreateCrawlerForUri(this IGenericCrawler source, Uri uri, int retry = 3, IScheduler scheduler = null)
+        public static IObservable<CQ> CreateCrawlerForUri(this ICrawler source, Uri uri, int retry = 3, IScheduler scheduler = null)
         {
             var crawl = Observable.Defer(() => CQ.CreateFromUrlAsync(uri.AbsoluteUri).ToObservable(scheduler))
             .Retry(retry)

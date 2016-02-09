@@ -14,56 +14,44 @@ using System.Threading;
 using DancingDuck.Crawler;
 using DancingDuck.Model;
 using System.Reactive.Concurrency;
+using DancingDuck.Util;
 
 namespace DancingDuck
 {
     class Program
     {
-
-        private static readonly IEnumerable<string> defaultPaths = new string[] { 
-            "crawl.txt", "crawl.json"
-        };
-
         static void Main(string[] args)
         {
             StartCrawl(args);
             Console.ReadLine();
         }
 
-        public class TimerDisposable : IDisposable
+        private static void StartCrawl(string[] args)
         {
-            private bool isDisposed;
-            private DateTime _startedAt;
+            var options = new Options();
 
-            public TimerDisposable()
+            if (!CommandLine.Parser.Default.ParseArguments(args, options))
             {
-                _startedAt = DateTime.Now;
+                return;
             }
 
-            public void Dispose()
-            {
-                if (!isDisposed)
-                {
-                    var elapsed = DateTime.Now.Subtract(_startedAt);
-                    Console.WriteLine("==== Total Time: {0} =====", elapsed.TotalMilliseconds);
-                    isDisposed = true;
-                }
-            }
-        }
+            var url = new Uri(options.InputUrl);
 
-        private static void StartCrawl(string [] args)
-        {
-            var config = defaultPaths.First(File.Exists);
-
-            var url = File.ReadLines(config).First().Split(' ')[1];
-            
-            var rootCrawler = new RootCrawler();
+            var rootCrawler = new CompositeCrawler();
             var extractor = new ParticipantExtractor(new EventExtractor());
+            var serializer = new JsonSerializer
+            {
+                Formatting = Formatting.Indented,
+            };
+
+            var writerObservable = Observable.Using(() => new JsonTextWriter(new StreamWriter(File.Open(options.Output, FileMode.Create))),
+                writer => Observable.Return(writer));
 
             rootCrawler.SubCrawlers.Add(new ParticipantCrawler(new System.Reactive.Concurrency.EventLoopScheduler()));
 
-            var extraction = rootCrawler.Crawl(new Uri(url))
+            var extraction = rootCrawler.Crawl(url)
                 .Do(x => Console.WriteLine("Extracting: " + x.Uri))
+                .Take(10)
                 .SelectMany(extractor.Extract)
                 .Publish();
 
@@ -74,26 +62,22 @@ namespace DancingDuck
                 .Do(dancer => Console.WriteLine("Processed: {0} with {1} dances", dancer.Name, dancer.Events.Count))
                 .ToList();
 
-            Observable.Using(() => new TimerDisposable(), _ => dances.Zip(participants, (left, right) => 
-                new Competition {
+            Observable.Using(() => new TimerDisposable(), _ => dances.Zip(participants, (left, right) =>
+                new Competition
+                {
                     Dancers = right,
                     Events = left,
                     Version = 5
                 }))
-                .Subscribe(body => {
-                    Console.WriteLine("Finished processing.  Starting write back");
-
-                    using (var writer = new JsonTextWriter(new StreamWriter(File.Open(args[0], FileMode.Create))))
+                .Do(_ => Console.WriteLine("Finished processing.  Starting write back"))
+                .Subscribe(
+                    body =>
                     {
-                        new JsonSerializer()
+                        using (var writer = new JsonTextWriter(new StreamWriter(File.Open(options.Output, FileMode.Create))))
                         {
-                            Formatting = Formatting.Indented,
+                            serializer.Serialize(writer, body);
                         }
-                        .Serialize(writer, body);
-
-                        Console.WriteLine("Write back completed!");
-                    }
-                });
+                    }, () => Console.WriteLine("Write back completed!"));
 
             extraction.Connect();
         }
