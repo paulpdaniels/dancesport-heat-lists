@@ -44,9 +44,7 @@
         $rootScope.$on('$routeChangeSuccess', function () {
             $scope.activeItem = $location.url();
         });
-
     }]);
-
 
     module.controller('CompetitionController', ['$scope', '$http', 'CompetitionService',
         function ($scope, $http, CompetitionService) {
