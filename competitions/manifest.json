@@ -1,6 +1,10 @@
 {
   "competitions" : [
     {
+      "key" : "ndca_nationals-2016",
+      "name" : "NDCA Nationals 2016"
+    },
+    {
       "key" : "california_open-2016",
       "name" : "California Open 2016"
     },
