@@ -10,7 +10,11 @@
     module.config(['$routeProvider', function ($routeProvider) {
         $routeProvider
             .when('/about', {templateUrl: 'partials/about.html', controller: 'AboutController'})
-            .when('/search', {templateUrl: 'partials/search.html', controller: 'CompetitionController'})
+            .when('/search', {
+                templateUrl: 'partials/search.html',
+                controller: 'CompetitionController',
+                reloadOnSearch: false
+            })
             .otherwise('/search');
     }]);
 
@@ -46,8 +50,8 @@
         });
     }]);
 
-    module.controller('CompetitionController', ['$scope', '$http', 'CompetitionService',
-        function ($scope, $http, CompetitionService) {
+    module.controller('CompetitionController', ['$scope', '$http', 'CompetitionService', '$location',
+        function ($scope, $http, CompetitionService, $location) {
 
         $scope.competitions = [];
         $scope.events = [];
@@ -77,7 +81,18 @@
         CompetitionService.getCompetitionList()
             .then(function (manifest) {
                 $scope.competitions = manifest.competitions;
-                $scope.selectedCompetition = $scope.competitions[0];
+                var query = $location.search();
+
+                for (var i = 0, ii = $scope.competitions.length; i < ii && query.c; ++i) {
+
+                    if (query.c === $scope.competitions[i].key) {
+                        $scope.selectedCompetition = $scope.competitions[i];
+                    }
+                }
+
+                if (!$scope.selectedCompetition)
+                    $scope.selectedCompetition = $scope.competitions[0];
+
                 reload();
             });
 
