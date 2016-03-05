@@ -49,7 +49,7 @@
                 <ol>
                     <li ng-repeat="event in selectedCompetitor.events">
                         <a href="" ng-click="searchEvent(getEvent(event))">
-                        {{getEvent(event).name}}
+                        {{getEvent(event).name}} - {{getEvent(event).time}}
                         </a>
                     </li>
                 </ol>
